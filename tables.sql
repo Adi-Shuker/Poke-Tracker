@@ -1,29 +1,25 @@
-CREATE DATABASE poke_tracker;
+-- CREATE DATABASE poke_tracker;
+use poke_tracker;
 CREATE TABLE pokemons(
     id INT PRIMARY KEY,
     name VARCHAR(50),
     height INT,
     weight INT
 );
-CREATE TABLE types(
-    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50)
-);
-CREATE TABLE pokemon_type(
-    type_id INT,
+CREATE TABLE types(name VARCHAR(50) PRIMARY KEY);
+CREATE TABLE pokemons_types(
+    type_name VARCHAR(50),
     pokemon_id INT,
-    FOREIGN KEY (type_id) REFERENCES types(id),
+    FOREIGN KEY (type_name) REFERENCES types(name),
     FOREIGN KEY (pokemon_id) REFERENCES pokemons(id)
 );
 CREATE TABLE trainers(
-    id INT PRIMARY KEY,
-    name VARCHAR(50),
+    name VARCHAR(50) PRIMARY KEY,
     town VARCHAR(100)
 );
-CREATE TABLE pokemon_trainer(
+CREATE TABLE pokemons_trainers(
     pokemon_id INT,
-    trainer_id INT,
+    trainer_name VARCHAR(50),
     FOREIGN KEY (pokemon_id) REFERENCES pokemons(id),
-    FOREIGN KEY (trainer_id) REFERENCES trainers(id)
+    FOREIGN KEY (trainer_name) REFERENCES trainers(name)
 );
-INSERT into pokemons(id, name, height, weight)
