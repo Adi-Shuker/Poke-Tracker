@@ -1,6 +1,5 @@
 # TODO - query extesion, error handling
 
-from gettext import translation
 import pymysql
 
 connection = pymysql.connect(
@@ -44,6 +43,7 @@ def insert_trainers(trainers):
     try:
         with connection.cursor() as cursor:
             query = f"INSERT ignore into trainers(name, town) values{','.join(trainers)};"
+            print(query)
             cursor.execute(query)
             connection.commit()
             result = cursor.fetchall()
@@ -86,35 +86,40 @@ def heaviest_pokemon():
             cursor.execute(query)
             result = cursor.fetchall()
             heaviest_pokemon_name = result[0]["name"]
-            return(heaviest_pokemon_name)
+            return (heaviest_pokemon_name)
     except:
         print("DB Error")
 
 # ex2
+
+
 def pokemons_by_type(type):
     try:
         with connection.cursor() as cursor:
             query = f'SELECT name FROM pokemons_types as pt, pokemons as p WHERE pt.type_name = "{type}" AND pt.pokemon_id = p.id'
             cursor.execute(query)
+            print(query)
             results = cursor.fetchall()
-            pokemons_by_type_arr=[]
+            pokemons_by_type_arr = []
             for res in results:
                 pokemons_by_type_arr.append(res["name"])
-            return(pokemons_by_type_arr)
+            return (pokemons_by_type_arr)
     except:
         print("DB Error")
 
 # ex3
+
+
 def find_owners(pokemon_name):
     try:
         with connection.cursor() as cursor:
             query = f'SELECT trainer_name FROM pokemons_trainers as pt, pokemons as p WHERE p.name = "{pokemon_name}" AND pt.pokemon_id = p.id'
             cursor.execute(query)
             results = cursor.fetchall()
-            trainer_by_pokemon=[]
+            trainer_by_pokemon = []
             for res in results:
                 trainer_by_pokemon.append(res["trainer_name"])
-            return(trainer_by_pokemon)
+            return (trainer_by_pokemon)
     except:
         print("DB Error")
 
@@ -126,9 +131,57 @@ def find_roster(trainer_name):
             query = f'SELECT name FROM pokemons as p, pokemons_trainers as pt WHERE pt.trainer_name = "{trainer_name}" AND pt.pokemon_id = p.id;'
             cursor.execute(query)
             results = cursor.fetchall()
-            pokemons_of_trainer=[]
+            pokemons_of_trainer = []
             for res in results:
                 pokemons_of_trainer.append(res["name"])
-            return(pokemons_of_trainer)
+            return (pokemons_of_trainer)
+    except:
+        print("DB Error")
+
+
+def delete_pokemon_of_trainer(pokemon_id, trainer_name):
+    try:
+        with connection.cursor() as cursor:
+            query = f'DELETE FROM pokemons_trainers where pokemon_id={pokemon_id} and trainer_name="{trainer_name}";'
+            print(query)
+            cursor.execute(query)
+            connection.commit()
+            results = cursor.fetchall()
+    except:
+        print("DB Error")
+
+
+def evolve_pokemon_of_trainer(old_pokemon_id, new_pokemon_id, trainer_name):
+    try:
+        with connection.cursor() as cursor:
+            query = f'UPDATE pokemons_trainers SET pokemon_id ={new_pokemon_id} WHERE pokemon_id={old_pokemon_id} and trainer_name="{trainer_name}";'
+            cursor.execute(query)
+            connection.commit()
+            results = cursor.fetchall()
+            return results
+    except:
+        print("DB Error")
+
+
+def get_pokemon_by_id(pokemon_id):
+    try:
+        with connection.cursor() as cursor:
+            query = f'SELECT p.id, p.name, p.height, p.weight,GROUP_CONCAT( DISTINCT pokemons_types.type_name) as types,GROUP_CONCAT(DISTINCT pokemons_trainers.trainer_name) as trainers FROM pokemons as p join pokemons_types on pokemons_types.pokemon_id = p.id join pokemons_trainers on pokemons_trainers.pokemon_id = p.id WHERE p.id = {pokemon_id} group by p.id'
+            cursor.execute(query)
+            results = cursor.fetchall()
+            return results
+    except:
+        print("DB Error")
+
+# todo
+
+
+def get_pokemons_by_types_and_trainer(trainer_name, pokemon_type):
+    try:
+        with connection.cursor() as cursor:
+            query = ""
+            # cursor.execute(query)
+            # results = cursor.fetchall()
+            return trainer_name + pokemon_type
     except:
         print("DB Error")
