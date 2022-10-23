@@ -23,8 +23,8 @@ def insert_pokemons(pokemons):
             connection.commit()
             result = cursor.fetchall()
             print(result)
-    except:
-        print("DB Error")
+    except pymysql.Error as e:
+        print(e)
 
 
 def insert_types(types):
@@ -35,8 +35,8 @@ def insert_types(types):
             connection.commit()
             result = cursor.fetchall()
             print(result)
-    except:
-        print("DB Error")
+    except pymysql.Error as e:
+        print(e)
 
 
 def insert_trainers(trainers):
@@ -48,8 +48,8 @@ def insert_trainers(trainers):
             connection.commit()
             result = cursor.fetchall()
             print(result)
-    except:
-        print("DB Error")
+    except pymysql.Error as e:
+        print(e)
 
 
 def insert_pokemons_trainers(pokemon_trainer):
@@ -60,8 +60,8 @@ def insert_pokemons_trainers(pokemon_trainer):
             connection.commit()
             result = cursor.fetchall()
             print(result)
-    except:
-        print("DB Error")
+    except pymysql.Error as e:
+        print(e)
 
 
 def insert_pokemons_types(pokemons_types):
@@ -72,13 +72,10 @@ def insert_pokemons_types(pokemons_types):
             connection.commit()
             result = cursor.fetchall()
             print(result)
-    except:
-        print("DB Error")
+    except pymysql.Error as e:
+        print(e)
 
 
-# queries
-
-# ex1
 def heaviest_pokemon():
     try:
         with connection.cursor() as cursor:
@@ -87,11 +84,8 @@ def heaviest_pokemon():
             result = cursor.fetchall()
             heaviest_pokemon_name = result[0]["name"]
             return (heaviest_pokemon_name)
-    except:
-        print("DB Error")
-
-# ex2
-
+    except pymysql.Error as e:
+        print(e)
 
 def pokemons_by_type(type):
     try:
@@ -104,10 +98,8 @@ def pokemons_by_type(type):
             for res in results:
                 pokemons_by_type_arr.append(res["name"])
             return (pokemons_by_type_arr)
-    except:
-        print("DB Error")
-
-# ex3
+    except pymysql.Error as e:
+        print(e)
 
 
 def find_owners(pokemon_name):
@@ -120,11 +112,10 @@ def find_owners(pokemon_name):
             for res in results:
                 trainer_by_pokemon.append(res["trainer_name"])
             return (trainer_by_pokemon)
-    except:
-        print("DB Error")
+    except pymysql.Error as e:
+        print(e)
 
 
-# ex4
 def find_roster(trainer_name):
     try:
         with connection.cursor() as cursor:
@@ -135,8 +126,8 @@ def find_roster(trainer_name):
             for res in results:
                 pokemons_of_trainer.append(res["name"])
             return (pokemons_of_trainer)
-    except:
-        print("DB Error")
+    except pymysql.Error as e:
+        print(e)
 
 
 def delete_pokemon_of_trainer(pokemon_id, trainer_name):
@@ -147,8 +138,8 @@ def delete_pokemon_of_trainer(pokemon_id, trainer_name):
             cursor.execute(query)
             connection.commit()
             results = cursor.fetchall()
-    except:
-        print("DB Error")
+    except pymysql.Error as e:
+        print(e)
 
 
 def evolve_pokemon_of_trainer(old_pokemon_id, new_pokemon_id, trainer_name):
@@ -159,8 +150,8 @@ def evolve_pokemon_of_trainer(old_pokemon_id, new_pokemon_id, trainer_name):
             connection.commit()
             results = cursor.fetchall()
             return results
-    except:
-        print("DB Error")
+    except pymysql.Error as e:
+        print(e)
 
 
 def get_pokemon_by_id(pokemon_id):
@@ -170,12 +161,10 @@ def get_pokemon_by_id(pokemon_id):
             cursor.execute(query)
             results = cursor.fetchall()
             return results
-    except:
-        print("DB Error")
+    except pymysql.Error as e:
+        print(e)
 
 # todo
-
-
 def get_pokemons_by_types_and_trainer(trainer_name, pokemon_type):
     try:
         with connection.cursor() as cursor:
@@ -183,5 +172,5 @@ def get_pokemons_by_types_and_trainer(trainer_name, pokemon_type):
             # cursor.execute(query)
             # results = cursor.fetchall()
             return trainer_name + pokemon_type
-    except:
-        print("DB Error")
+    except pymysql.Error as e:
+        print(e)
