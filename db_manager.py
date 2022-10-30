@@ -1,6 +1,6 @@
-# TODO - query extesion, error handling
-
+# TODO - query extesion
 import pymysql
+from fastapi import HTTPException  
 
 connection = pymysql.connect(
     host="localhost",
@@ -23,8 +23,8 @@ def insert_pokemons(pokemons):
             connection.commit()
             result = cursor.fetchall()
             print(result)
-    except pymysql.Error as e:
-        print(e)
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail="DB Error - insert_pokemons")
 
 
 def insert_types(types):
@@ -35,8 +35,8 @@ def insert_types(types):
             connection.commit()
             result = cursor.fetchall()
             print(result)
-    except pymysql.Error as e:
-        print(e)
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail="DB Error - insert_types")
 
 
 def insert_trainers(trainers):
@@ -48,9 +48,8 @@ def insert_trainers(trainers):
             connection.commit()
             result = cursor.fetchall()
             print(result)
-    except pymysql.Error as e:
-        print(e)
-
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail="DB Error - insert_trainers")
 
 def insert_pokemons_trainers(pokemon_trainer):
     try:
@@ -60,8 +59,8 @@ def insert_pokemons_trainers(pokemon_trainer):
             connection.commit()
             result = cursor.fetchall()
             print(result)
-    except pymysql.Error as e:
-        print(e)
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail="DB Error - insert_pokemons_trainers")
 
 
 def insert_pokemons_types(pokemons_types):
@@ -72,8 +71,9 @@ def insert_pokemons_types(pokemons_types):
             connection.commit()
             result = cursor.fetchall()
             print(result)
-    except pymysql.Error as e:
-        print(e)
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail="DB Error - insert_pokemons_types")
+
 
 
 def heaviest_pokemon():
@@ -84,8 +84,9 @@ def heaviest_pokemon():
             result = cursor.fetchall()
             heaviest_pokemon_name = result[0]["name"]
             return (heaviest_pokemon_name)
-    except pymysql.Error as e:
-        print(e)
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail="DB Error - heaviest_pokemon")
+
 
 def pokemons_by_type(type):
     try:
@@ -98,8 +99,8 @@ def pokemons_by_type(type):
             for res in results:
                 pokemons_by_type_arr.append(res["name"])
             return (pokemons_by_type_arr)
-    except pymysql.Error as e:
-        print(e)
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail="DB Error - pokemons_by_type")
 
 
 def find_owners(pokemon_name):
@@ -112,8 +113,8 @@ def find_owners(pokemon_name):
             for res in results:
                 trainer_by_pokemon.append(res["trainer_name"])
             return (trainer_by_pokemon)
-    except pymysql.Error as e:
-        print(e)
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail="DB Error - find_owners")
 
 
 def find_roster(trainer_name):
@@ -126,8 +127,8 @@ def find_roster(trainer_name):
             for res in results:
                 pokemons_of_trainer.append(res["name"])
             return (pokemons_of_trainer)
-    except pymysql.Error as e:
-        print(e)
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail="DB Error - find_roster")
 
 
 def delete_pokemon_of_trainer(pokemon_id, trainer_name):
@@ -138,8 +139,8 @@ def delete_pokemon_of_trainer(pokemon_id, trainer_name):
             cursor.execute(query)
             connection.commit()
             results = cursor.fetchall()
-    except pymysql.Error as e:
-        print(e)
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail="DB Error - delete_pokemon_of_trainer")
 
 
 def evolve_pokemon_of_trainer(old_pokemon_id, new_pokemon_id, trainer_name):
@@ -150,20 +151,24 @@ def evolve_pokemon_of_trainer(old_pokemon_id, new_pokemon_id, trainer_name):
             connection.commit()
             results = cursor.fetchall()
             return results
-    except pymysql.Error as e:
-        print(e)
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail="DB Error - evolve_pokemon_of_trainer")
 
 
 def get_pokemon_by_id(pokemon_id):
     try:
         with connection.cursor() as cursor:
-            query = f'SELECT p.id, p.name, p.height, p.weight,GROUP_CONCAT( DISTINCT pokemons_types.type_name) as types,GROUP_CONCAT(DISTINCT pokemons_trainers.trainer_name) as trainers FROM pokemons as p join pokemons_types on pokemons_types.pokemon_id = p.id join pokemons_trainers on pokemons_trainers.pokemon_id = p.id WHERE p.id = {pokemon_id} group by p.id'
+            query = f'''
+            SELECT p.id, p.name, p.height, p.weight,GROUP_CONCAT(DISTINCT pokemons_types.type_name) as types 
+            FROM pokemons as p join pokemons_types
+            WHERE p.id = {pokemon_id} group by p.id;
+            '''
             cursor.execute(query)
             results = cursor.fetchall()
             return results
-    except pymysql.Error as e:
-        print(e)
-
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail="DB Error - get_pokemon_by_id")
+        
 # todo
 def get_pokemons_by_types_and_trainer(trainer_name, pokemon_type):
     try:
@@ -172,5 +177,5 @@ def get_pokemons_by_types_and_trainer(trainer_name, pokemon_type):
             # cursor.execute(query)
             # results = cursor.fetchall()
             return trainer_name + pokemon_type
-    except pymysql.Error as e:
-        print(e)
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail="DB Error - get_pokemons_by_types_and_trainer")
