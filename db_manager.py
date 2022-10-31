@@ -91,7 +91,10 @@ def heaviest_pokemon():
 def pokemons_by_type(type):
     try:
         with connection.cursor() as cursor:
-            query = f'SELECT name FROM pokemons_types as pt, pokemons as p WHERE pt.type_name = "{type}" AND pt.pokemon_id = p.id'
+            query = f'''SELECT DISTINCT name 
+                        FROM pokemons_types as pt, pokemons as p 
+                        WHERE pt.type_name = {type} AND pt.pokemon_id = p.id
+                        '''
             cursor.execute(query)
             print(query)
             results = cursor.fetchall()
@@ -106,7 +109,7 @@ def pokemons_by_type(type):
 def find_owners(pokemon_name):
     try:
         with connection.cursor() as cursor:
-            query = f'SELECT trainer_name FROM pokemons_trainers as pt, pokemons as p WHERE p.name = "{pokemon_name}" AND pt.pokemon_id = p.id'
+            query = f'SELECT DISTINCT trainer_name FROM pokemons_trainers as pt, pokemons as p WHERE p.name = "{pokemon_name}" AND pt.pokemon_id = p.id'
             cursor.execute(query)
             results = cursor.fetchall()
             trainer_by_pokemon = []
@@ -120,7 +123,7 @@ def find_owners(pokemon_name):
 def find_roster(trainer_name):
     try:
         with connection.cursor() as cursor:
-            query = f'SELECT name FROM pokemons as p, pokemons_trainers as pt WHERE pt.trainer_name = "{trainer_name}" AND pt.pokemon_id = p.id;'
+            query = f'SELECT DISTINCT name FROM pokemons as p, pokemons_trainers as pt WHERE pt.trainer_name = "{trainer_name}" AND pt.pokemon_id = p.id;'
             cursor.execute(query)
             results = cursor.fetchall()
             pokemons_of_trainer = []
@@ -159,7 +162,7 @@ def get_pokemon_by_id(pokemon_id):
     try:
         with connection.cursor() as cursor:
             query = f'''
-            SELECT p.id, p.name, p.height, p.weight,GROUP_CONCAT(DISTINCT pokemons_types.type_name) as types 
+            SELECT DISTINCT p.id, p.name, p.height, p.weight,GROUP_CONCAT(DISTINCT pokemons_types.type_name) as types 
             FROM pokemons as p join pokemons_types
             WHERE p.id = {pokemon_id} group by p.id;
             '''
@@ -169,13 +172,17 @@ def get_pokemon_by_id(pokemon_id):
     except Exception as e:
         raise HTTPException(status_code = 500, detail="DB Error - get_pokemon_by_id")
         
-# todo
+
 def get_pokemons_by_types_and_trainer(trainer_name, pokemon_type):
     try:
         with connection.cursor() as cursor:
-            query = ""
-            # cursor.execute(query)
-            # results = cursor.fetchall()
-            return trainer_name + pokemon_type
+            query = f'''
+            SELECT DISTINCT p.name 
+            FROM pokemons_types as pty, pokemons_trainers as ptr, pokemons as p
+            WHERE pty.type_name = {pokemon_type} AND ptr.trainer_name = {trainer_name} AND pty.pokemon_id = ptr.pokemon_id AND p.id = ptr.pokemon_id;
+            '''
+            cursor.execute(query)
+            results = cursor.fetchall()
+            return results
     except Exception as e:
         raise HTTPException(status_code = 500, detail="DB Error - get_pokemons_by_types_and_trainer")
