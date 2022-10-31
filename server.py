@@ -1,7 +1,5 @@
-from asyncio.windows_events import NULL
-from msilib.schema import Error
 from typing import List
-from fastapi import FastAPI, HTTPException  
+from fastapi import FastAPI, HTTPException
 import uvicorn
 import requests
 import json
@@ -26,31 +24,38 @@ async def get_pokemon(pokemon_name):
         db_manager.insert_pokemons_types(types)
         return db_manager.get_pokemon_by_id(pokemon_id)
     except Exception as e:
-        raise HTTPException(status_code = 400, detail="Bad Request - pokemon name does not exist")
+        raise HTTPException(
+            status_code=400, detail="Bad Request - pokemon name does not exist")
 
 
-# todo filter with trainer_name and pokemon_type
-@app.get("/trainers", status_code = 200)
-async def get_pokemons_by_trainer_or_type(trainer_name=NULL, pokemon_type=NULL):
-    if trainer_name and pokemon_type:
-        return db_manager.get_pokemons_by_types_and_trainer(trainer_name, pokemon_type)
-    if trainer_name:
-        return db_manager.find_roster(trainer_name)
-    elif pokemon_type:
+@app.get("/pokemons", status_code=200)
+async def get_pokemons_by_type(pokemon_type):
+    try:
         return db_manager.pokemons_by_type(pokemon_type)
-    else:
-        raise HTTPException(status_code = 400, detail="Bad Request - trainer_name and pokemon_type are NULL")
+    except:
+        raise HTTPException(
+            status_code=400, detail="Bad Request - pokemon_type is missing")
 
 
-@app.get("/trainers", status_code = 200)
+@app.get("/trainers/{trainer_name}/pokemons", status_code=200)
+async def get_pokemons_by_trainer(trainer_name):
+    try:
+        return db_manager.find_roster(trainer_name)
+    except:
+        raise HTTPException(
+            status_code=400, detail="Bad Request - trainer_name does not exist")
+
+
+@app.get("/trainers", status_code=200)
 async def get_trainers_of_pokemon(pokemon_name):
     try:
         return db_manager.find_owners(pokemon_name)
     except:
-        raise HTTPException(status_code = 400, detail="Bad Request - pokemon_name does not exist")
+        raise HTTPException(
+            status_code=400, detail="Bad Request - pokemon_name does not exist")
 
 
-@app.post("/pokemons", status_code= 201)
+@app.post("/pokemons", status_code=201)
 async def add_pokemon(pokemons: List[Pokemon]):
     try:
         for pokemon in pokemons:
@@ -65,18 +70,17 @@ async def add_pokemon(pokemons: List[Pokemon]):
                 pokemon_trainers.append(f'({pokemon.id}, "{trainer}")')
             db_manager.insert_pokemons_trainers(pokemon_trainers)
     except:
-        raise HTTPException(status_code = 500, detail="DB Error - add_pokemon")
+        raise HTTPException(status_code=500, detail="DB Error - add_pokemon")
 
 
-
-@app.post("/trainers", status_code= 201)
+@app.post("/trainers", status_code=201)
 async def add_trainers(trainers: List[Trainer]):
     try:
         for trainer in trainers:
-            db_manager.insert_trainers([f'("{trainer.name}", "{trainer.town}")'])
+            db_manager.insert_trainers(
+                [f'("{trainer.name}", "{trainer.town}")'])
     except:
-        raise HTTPException(status_code = 500, detail="DB Error - add_trainers")
-
+        raise HTTPException(status_code=400, detail="DB Error - add_trainers")
 
 
 @app.delete("/pokemons/{pokemon_id}/trainers/{trainer_name}")
@@ -84,9 +88,8 @@ async def delete_pokemon_of_trainer(pokemon_id, trainer_name):
     try:
         return db_manager.delete_pokemon_of_trainer(pokemon_id, trainer_name)
     except:
-        raise HTTPException(status_code = 500, detail="DB Error - delete_pokemon_of_trainer")
-
-# maybe need to pass the parameters throw the body?
+        raise HTTPException(
+            status_code=400, detail="Bad Request - pokemon_id or trainer_name does not exist")
 
 
 @app.patch("/pokemons/evolve")
@@ -111,7 +114,8 @@ async def pokemon_evolve(pokemon_id, pokemon_name, trainer_name):
                 pokemon_id, new_pokemon_id, trainer_name)
         return evolve_pokemon_name
     except:
-        raise HTTPException(status_code = 400, detail="Bad Request - pokemon_id / pokemon_name / trainer_name does not exist")
+        raise HTTPException(
+            status_code=400, detail="Bad Request - pokemon_id / pokemon_name / trainer_name does not exist")
 
 
 if __name__ == "__main__":
