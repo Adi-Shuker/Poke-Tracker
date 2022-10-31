@@ -8,4 +8,3 @@ class Pokemon(BaseModel):
     types: List
     height: int
     weight: int
-    trainers: List

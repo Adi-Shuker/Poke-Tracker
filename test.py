@@ -6,7 +6,7 @@ from unittest.mock import Mock
 from fastapi.testclient import TestClient
 
 from server import app
-import db_manager
+import models.db_manager as db_manager
 
 
 client = TestClient(app)
@@ -33,3 +33,11 @@ class Testing:
         assert response.status_code == 400
         assert response.json()[
             "detail"] == "Bad Request - pokemon name does not exist"
+    """
+    test evolve:
+    1.last in chain 
+    2.wrong name (404) api or DB
+    3.no pokemon for trainer
+    4.no trainer
+    5.evolve ti pokemon whan the pokemon already exist in trainer pokemons
+    """

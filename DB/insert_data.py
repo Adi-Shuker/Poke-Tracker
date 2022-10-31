@@ -1,5 +1,5 @@
 import json
-import db_manager
+import models.db_manager as db_manager
 
 with open('poke_data.json', 'r') as data_file:
     json_data = data_file.read()
