@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 from typing import List
 from fastapi import FastAPI, HTTPException
 import uvicorn
@@ -29,18 +28,22 @@ async def get_pokemon(pokemon_name):
             status_code=400, detail="Bad Request - pokemon name does not exist")
 
 
-# todo filter with trainer_name and pokemon_type
-@app.get("/trainers", status_code=200)
-async def get_pokemons_by_trainer_or_type(trainer_name=NULL, pokemon_type=NULL):
-    if trainer_name and pokemon_type:
-        return db_manager.get_pokemons_by_types_and_trainer(trainer_name, pokemon_type)
-    if trainer_name:
-        return db_manager.find_roster(trainer_name)
-    elif pokemon_type:
+@app.get("/pokemons", status_code=200)
+async def get_pokemons_by_type(pokemon_type):
+    try:
         return db_manager.pokemons_by_type(pokemon_type)
-    else:
+    except:
         raise HTTPException(
-            status_code=400, detail="Bad Request - trainer_name and pokemon_type are NULL")
+            status_code=400, detail="Bad Request - pokemon_type is missing")
+
+
+@app.get("/trainers/{trainer_name}/pokemons", status_code=200)
+async def get_pokemons_by_trainer(trainer_name):
+    try:
+        return db_manager.find_roster(trainer_name)
+    except:
+        raise HTTPException(
+            status_code=400, detail="Bad Request - trainer_name does not exist")
 
 
 @app.get("/trainers", status_code=200)
@@ -77,7 +80,7 @@ async def add_trainers(trainers: List[Trainer]):
             db_manager.insert_trainers(
                 [f'("{trainer.name}", "{trainer.town}")'])
     except:
-        raise HTTPException(status_code=500, detail="DB Error - add_trainers")
+        raise HTTPException(status_code=400, detail="DB Error - add_trainers")
 
 
 @app.delete("/pokemons/{pokemon_id}/trainers/{trainer_name}")
@@ -86,9 +89,7 @@ async def delete_pokemon_of_trainer(pokemon_id, trainer_name):
         return db_manager.delete_pokemon_of_trainer(pokemon_id, trainer_name)
     except:
         raise HTTPException(
-            status_code=500, detail="DB Error - delete_pokemon_of_trainer")
-
-# maybe need to pass the parameters throw the body?
+            status_code=400, detail="Bad Request - pokemon_id or trainer_name does not exist")
 
 
 @app.patch("/pokemons/evolve")
