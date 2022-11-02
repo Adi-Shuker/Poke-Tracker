@@ -10,7 +10,6 @@ class Trainer():
         try:
             with connection.cursor() as cursor:
                 query = f"INSERT ignore into trainers(name, town) values{','.join(trainers)};"
-                print(query)
                 cursor.execute(query)
                 connection.commit()
         except Exception as e:
