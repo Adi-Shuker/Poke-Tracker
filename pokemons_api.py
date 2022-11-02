@@ -4,19 +4,26 @@ from pokemon import Pokemon
 from fastapi import HTTPException
 
 
+class ElementNotExistError(Exception):
+    pass
+
+
 class Pokemons_API:
     base_url = 'https://pokeapi.co/api/v2'
 
     def get_pokemon(self, pokemon_name):
-        res = requests.get(f'{self.base_url}/pokemon/{pokemon_name}')
-        pokemon = json.loads(res.text)
-        return Pokemon(
-            id=pokemon["id"],
-            name=pokemon["name"],
-            types=[type["type"]["name"] for type in pokemon["types"]],
-            height=pokemon["height"],
-            weight=pokemon["weight"]
-        )
+        try:
+            res = requests.get(f'{self.base_url}/pokemon/{pokemon_name}')
+            pokemon = json.loads(res.text)
+            return Pokemon(
+                id=pokemon["id"],
+                name=pokemon["name"],
+                types=[type["type"]["name"] for type in pokemon["types"]],
+                height=pokemon["height"],
+                weight=pokemon["weight"]
+            )
+        except Exception as e:
+            raise ElementNotExistError()
 
     def _get_evolution_chain(self, pokemon_name):
         res = requests.get(f'{self.base_url}/pokemon/{pokemon_name}')
@@ -51,7 +58,3 @@ class Pokemons_API:
             height=pokemon["height"],
             weight=pokemon["weight"]
         )
-
-
-pokemon_API = Pokemons_API()
-pokemon_API.get_evolve('eevee')

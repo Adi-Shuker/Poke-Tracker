@@ -1,7 +1,8 @@
 import json
-import models.db_manager as db_manager
+from models.trainer import Trainer as trainer_model
+from models.pokemon import Pokemon as pokemon_model
 
-with open('poke_data.json', 'r') as data_file:
+with open('data/poke_data.json', 'r') as data_file:
     json_data = data_file.read()
     poke_data = json.loads(json_data)
     pokemon_values = []
@@ -26,8 +27,8 @@ with open('poke_data.json', 'r') as data_file:
             trainers_values.append(f'{trainer_name, trainer_town}')
             pokemon_trainer_values.append(f'({pokemon_id}, "{trainer_name}")')
 
-    db_manager.insert_pokemons(pokemon_values)
-    db_manager.insert_types(types_values)
-    db_manager.insert_trainers(trainers_values)
-    db_manager.insert_pokemons_types(pokemon_type_values)
-    db_manager.insert_pokemons_trainers(pokemon_trainer_values)
+    pokemon_model.insert_pokemons(pokemon_values)
+    pokemon_model.insert_types(types_values)
+    trainer_model.insert_trainers(trainers_values)
+    pokemon_model.insert_pokemons_types(pokemon_type_values)
+    trainer_model.insert_pokemons_trainers(pokemon_trainer_values)
